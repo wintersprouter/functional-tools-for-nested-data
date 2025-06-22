@@ -1707,20 +1707,92 @@ layout: default
 
 # 14.20  為巢狀資料建立抽象屏障
 
-## 抽象屏障
-抽象屏障（abstraction barrier）是有效隱藏實作細節的函式層，有了它，使用屏障中的函式時，完全不需要了解函式的底層實作。
+## 抽象屏障（abstraction barrier）:
 
-## 例子
+是有效隱藏實作細節的函式層，有了它，使用屏障中的函式時，完全不需要了解函式的底層實作。
+<br/>
 
- 建立可操作目標資料結構的函式，並且賦予這些函式有意義的名稱。
+舉例：建立可操作目標資料結構的函式，並且賦予這些函式有意義的名稱。
 
-寫⼀個能根據給定貼⽂編號（ ID ）修改部落格貼⽂（ post ）的函式（貼⽂儲存在 category 巢狀物件的『 posts 』鍵下）
+寫⼀個能根據給定貼⽂編號（ ID ）修改部落格貼⽂（ post ）的函式（貼⽂儲存在 category 巢狀物件的『posts』鍵下）
 
 ```js
-function updatePostById(category, id, modifyPost) {
-    return nestedUpdate(category, ['posts', id], modifyPost);
+function updatePostById(category, id, modifyPost) { //不需知道 posts 和 category 的關係也能用
+    return nestedUpdate(category, ['posts', id], modifyPost); // 位於屏障上層的程式不必知道 category 的資料結構
 }
 ```
+變更作者資訊（user，存放於『author』鍵下）
+```js
+function updateAuthor(post, modifyUser) {
+    return update(post, 'author', modifyUser);
+}
+```
+
 ---
 layout: default
 ---
+
+將作者名字改為大寫（利用 capitalize() 完成），所以需再實作能取得「name」屬性的函式，並傳入 capitalize() 
+
+```js
+function capitalizeName(user) {
+    return update(user, 'name', capitalize);
+}
+```
+結合以上，就可以得到：
+
+```js
+updatePostById(blogCategory, '12', function(post) {
+    return updateAuthor(post, capitalizeUserName);
+});
+```
+<br/>
+
+## 使用抽象屏障優點
+
+- 函式的名稱簡單易懂
+- 不知道鍵的名稱也能夠順利修改目標屬性
+
+---
+layout: default
+---
+
+# 14.21 總結高階函式的應用
+
+## 在⾛訪陣列時取代for迴圈
+
+`forEach（）`、`map（）`、`filter（）`、與`reduce（）`，皆是能操作陣列的⾼階函式。你可以將它們串連成鏈，以實現更複雜的計算。
+
+## 有效處理巢狀資料
+
+要改變巢狀資料中的值非常麻煩，不僅需進行多次『取得』，還得對每一層的物件做『寫入時複製』。為此，我們實作了 `update（）` 和 `nestedUpdate（）` — 無論巢狀結構有多深，這兩個高階函式都能精準更改指定屬性值。
+
+---
+layout: section
+---
+
+## 套用『寫入時複製』
+
+『寫入時複製』的步驟是固定的（即：產生複本、修改複本、傳回複本），故實作時可能產生重複程式碼。但只要使用 `withArrayCopy（）` 和 `withObjectCopy （）`，就能把任意操作協調成『寫入時複製』版本。以上兩個高階函式是將固定程式標準化的極佳範例。
+
+## 將 try/catch 敘述標準化
+
+我們曾寫過名為 `wrapLogging（）` 的高階函式：其可接受任意函式`f`，並傳回功能和「相同，但多了 `try/catch` 錯誤捕捉能力的新函式。這個例子讓我們瞭解：高階函式可改變其他函式的行為。
+
+---
+layout: default
+---
+
+# 重點整理
+
+- 函數式工具 `update()` 能修改物件中的指定屬性值，為我們免去手動取得屬性值、修改，然後再將結果設定回物件中的麻煩。
+
+- `nestedUpdate()` 能處理深度巢狀資料。當知道目標屬性值在巢狀物件中的路徑（由一系列的『鍵』構成）時，就能用此函數式工具輕鬆修改該值。
+
+- 一般來說，迴圈比遞迴容易理解。但面對巢狀資料時，遞迴則比較好用。
+
+- 函式在呼叫自己之前，遞迴會利用函式呼叫堆疊來追蹤目前進度，這使得遞迴函式的構造能反映巢狀資料結構。
+
+- 深度巢狀結構會造成理解困難上的不便。要操作此類資料，你必須記得每一巢狀層的資料結構為何。
+
+- 你可以更簡化關鍵資料結構設計上的抽象不便，藉此降低需要記憶的細節。這麼做能讓巢狀資料操作更簡單。
