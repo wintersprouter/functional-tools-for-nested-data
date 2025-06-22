@@ -31,7 +31,7 @@ fonts:
 
 ---
 
-# ch 14 處理巢狀資料的函數式工具
+# CH 14 處理巢狀資料的函數式工具
 
 《簡約軟體開發思維用 Functional Programming 重構程式以 JavaScript 為例》 讀書會
 
@@ -73,17 +73,27 @@ Here is another comment.
 
 ---
 transition: slide-up
+layout: default
 
 ---
 
-# 前次回顧
+# 前次回顧: CH 12 利用函式走訪
+
+---
+layout: default
+transition: slide-up
+---
+
+# 前次回顧: CH 13 串聯函數式工具
 
 
 ---
-layout: section
+layout: default
+transition: slide-up
 
 ---
-#  本章目標
+
+# 本次導讀目標：CH 14 處理巢狀資料的函數式工具
 
 <br/>
 
@@ -537,7 +547,7 @@ function update(object, key, modify) {
 
 
 ---
-  layout: default
+  layout: section
 ---
 # 練習 14-1
 
@@ -570,7 +580,7 @@ var user = {
 </v-click>
 
 ---
-layout: default
+layout: section
 ---
 
 # 練習 14-2
@@ -585,6 +595,7 @@ var item = {
     …
 };
 ```
+
 ## 解答
 
 <v-click>
@@ -599,7 +610,7 @@ function tenXQuantity(item) {
 </v-click>
 
 --- 
-layout: default
+layout: section
 ---
 # 練習 14-3
  <div grid="~ cols-2 gap-4">
@@ -662,19 +673,13 @@ var user = {
 </v-click>
 </div>
 
----
-layout: center
----
-
-<img
-  class="align-center justify-center"
-  src="./image/14-13.png"
-  alt="">
-
 
 ---
 layout: section
 ---
+
+## update() 能處理巢狀資料嗎？
+
 
 ```js {*|4,5,6,7|11,12,13,14,15|}
 var shirt = {
@@ -686,6 +691,7 @@ var shirt = {
     }
 };
  
+
 function incrementSize(item) {
     var options = item.options; //取得
     var size = options.size; //取得
@@ -1216,12 +1222,14 @@ function update3(object, key1, key2, key3, modify) {
 </div>
 
 ---
-layout: default
+layout: section
+
 ---
 
 # 練習 14-4
 
-## update4()
+
+## 實作 update4()
 
 <v-click>
 
@@ -1235,7 +1243,7 @@ function update4(object, k1, k2, k3, k4, modify) {
 </v-click>
 
 
-## update5()
+## 實作 update5()
 
 <v-click>
 
@@ -1304,7 +1312,7 @@ function update0(value, modify) {
 }
 ```
 ---
-layout: statement
+layout: center
 
 ---
 從剛剛的觀察發現程式再度飄出『函式名稱中的程式碼異味』：
