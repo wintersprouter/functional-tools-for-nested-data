@@ -937,3 +937,790 @@ function update2(object, key1, key2, modify) { //函式名稱中的2表示用於
 <div v-if="$slidev.nav.clicks === 1">
 將外層的Key 參數名改爲 key1，內層的Key 參數名改爲 key2，並將 item 改為 object
 </div>
+---
+layout: default
+---
+
+比較一下重構後的版本：
+
+對 options 的 size 屬性加 1 的操作：
+
+```js
+var shirt = {
+    name: "shirt",
+    price: 13,
+    options: {
+        color: "blue",
+        size: 3
+    }
+};
+```
+
+
+<p v-if="$slidev.nav.clicks === 0">原始程式</p>
+<p v-if="$slidev.nav.clicks === 1"> 改以 update2() 實作</p>
+
+````md magic-move {at:1, lines: true}
+
+
+```js 
+function incrementSize(item) {
+    var options = item.options;
+    var size = options.size;
+    var newSize = size + 1;
+    var newOptions = objectSet(options, 'size', newSize);
+    var newItem = objectSet(item, 'options', newOptions);
+    return newItem;
+}
+```
+
+```js 
+function incrementSize(item) {
+ 
+    return update2(item, 'options', 'size', function(size) {
+        return size + 1;
+    });
+ 
+ 
+}
+
+```
+````
+---
+layout: default
+---
+
+# 14.12 視覺化說明 update2（）如何操作巢狀物件
+
+## 路徑 (path) 
+
+用來定位巢狀物件中之屬性值的鍵序列，其中每一個鍵對應一個巢狀層。
+
+> 本例的目標是『對 size 屬性值加 1』。
+為此  `update2（）`需先取得 item 物件，
+接著進入『'options'』鍵所指定的物件，然後才能存取到『'size'』鍵的值。
+
+```js
+
+> return update2(shirt, 'options', 'size', function(size) {
+        return size + 1; // 對 size 屬性值加 1
+    });
+```
+
+'options', 'size' 通往目標屬性的路徑
+
+---
+layout: center
+
+---
+
+
+<div class="flex gap-4">
+
+
+```js
+var shirt = {
+    name: "shirt",
+    price: 13,
+    options: {
+        color: "blue",
+        size: 3
+    }
+};
+```
+
+
+
+  <img
+    class="align-center justify-center"
+    src="./image/f0372-01.jpg"
+    alt="">
+</div>
+
+---
+layout: section
+
+---
+
+## 進入巢狀結構 （取得一>取得一>修改）
+
+<img
+    class="align-center justify-center"
+    src="./image/f0372-02.jpg"
+    alt="">
+
+---
+layout: section
+---
+
+## 離開巢狀結構（設定 ⼀> 設定）
+
+<img
+    class="align-center justify-center"
+    src="./image/f0372-03.jpg"
+    alt="">
+
+---
+layout: default
+---
+當遇到三層巢狀結構？
+
+<div class="flex gap-4">
+```js
+var cart = {
+    shirt: {
+        name: "shirt",
+        price: 13,
+        options: {
+            color: "blue",
+            size: 3
+        }
+    }
+}
+```
+
+<img
+    class="align-center justify-center"
+    src="./image/f0373-02.jpg"
+    alt="">
+</div>
+
+---
+layout: default
+
+---
+
+# 14.13 函式incrementSizeByName()的4種實作方法
+此函式能接受購物⾞ cart 參數和商品名 name 參數，然後將購物⾞內對應商品的 size 屬性值（位於 options 物件中）加 1。
+
+<div grid="~ cols-2 gap-1">
+
+<div>
+<p class="text-sm"> 方法1: 使⽤ `update()` 和 `incrementSize()`</p>
+
+```js
+function incrementSizeByName(cart, name) {
+    return update(cart, name, incrementSize);
+}
+```
+</div>
+<div>
+<p class="text-sm"> 方法2：使⽤ `update()` 和 `update2()`</p>
+
+```js
+function incrementSizeByName(cart, name) {
+    return update(cart, name, function(item) {
+        return update2(item, 'options', 'size', function(size) {
+            return size + 1;
+        });
+    });
+}
+```
+</div>
+
+
+</div>
+---
+layout: section
+---
+
+<p class="text-sm"> 方法3：只⽤ `update()` </p>
+```js
+function incrementSizeByName(cart, name) {
+    return update(cart, name, function(item) {
+        return update(item, 'options', function(options) {
+            return update(options, 'size', function(size) {
+    return size + 1;
+            });
+        });
+    });
+}
+```
+
+
+<p class="text-sm">方法4：⾃⾏實作所有『 取得 、 修改 、 設定 』步驟</p>
+
+```js
+function incrementSizeByName(cart, name) {
+    var item    = cart[name];
+    var options  = item.options;
+    var size    = options.size;
+    var newSize  = size + 1;
+    var newOptions = objectSet(options, 'size', newSize);
+    var newItem  = objectSet(item, 'options', newOptions);
+    var newCart  = objectSet(cart, name, newItem);
+    return newCart;
+}
+```
+
+---
+layout: default
+---
+
+# 14.14 實作三層巢狀結構的 update3 ()
+
+<div class="flex gap-4">
+<div>
+<p v-if="$slidev.nav.clicks === 0">方法二</p>
+<p v-if="$slidev.nav.clicks === 1">重構後</p>
+
+````md magic-move {at:1, lines: true}
+```js
+function incrementSizeByName(cart, name) {
+    return update(cart, name, function(item) {
+        return update2(item, 'options', 'size', function(size) {
+            return size + 1;
+        });
+    });
+}
+
+```
+
+```js
+function incrementSizeByName(cart, name) {
+    return update3(cart, name,'options', 'size',
+     function(size) {
+        return size + 1;
+    });
+}
+
+function update3(object, key1, key2, key3, modify) {
+    return update(object, key1, function(object2) {
+        return update2(object2, key2, modify);
+    });
+}
+```
+```
+
+````
+</div>
+<div v-if="$slidev.nav.clicks === 0">
+
+1. 辨識出函式名稱裡的隱性引數，擷取成 `update3()` 。
+2. 加入新參數以接收顯性輸入。
+3. 利用新參數取代函式實作中的固定值
+
+</div>
+
+<div v-if="$slidev.nav.clicks === 1">
+`update3()`參數
+
+- `object`：購物車物件
+- `key1`：商品名稱
+- `key2`：商品名稱內的 options 物件
+- `key3`：商品名稱內 options 物件中的屬性
+- `modify`：用於修改值的函式
+
+`update3()` 相當於 『 在 `update()` 中呼叫 `update2()` 』。
+</div>
+</div>
+
+---
+layout: default
+---
+
+# 練習 14-4
+
+## update4()
+
+<v-click>
+
+```js
+function update4(object, k1, k2, k3, k4, modify) { 
+    return update(object, k1, function(object2) { 
+        return update3(object2, k2, k3, k4, modify); 
+    });  
+}
+```
+</v-click>
+
+
+## update5()
+
+<v-click>
+
+```js
+function update5(object, k1, k2, k3, k4, k5, modify) {
+    return update(object, k1, function(object2) {
+        return update4(object2, k2, k3, k4, k5, modify);
+    });
+}
+```
+</v-click>
+
+---
+layout: default
+---
+# 14.15 實作任意與狀深度的 nestedUpdate()
+
+觀察以下規律：
+```js
+
+function update3(object, key1, key2, key3, modify) {
+    return update(object, key1, function(value1) {
+        return update2(value1, key2, key3, modify);
+    });
+}
+
+function update4(object, key1, key2, key3, key4, modify) {
+    return update(object, key1, function(value1) {
+        return update3(value1, key2, key3, key4, modify);
+    });
+}
+```
+
+要定義 `updateX()` ，只要在 `update()` 中呼叫 `updateX - 1()` 即可︔
+此時 `update()` 會使⽤第⼀個鍵，剩餘的鍵則按順序、連同 `modify` 函式引數一起傳給
+`updateX - 1()`。
+
+X 剛好等於鍵的個數、而這些鍵又共同組成路徑，可以將 X 解釋成『路徑長度』或『巢狀深度』。
+
+---
+layout: full
+---
+`update2()` 的實作如下︰
+```js
+function update2(object, key1, key2, modify) {
+    return update(object, key1, function(value1) {
+        return update1(value1, key2, modify);
+    });
+}
+```
+`update1()` 又如何呢？注意 X - 1 會變成 0
+```js
+function update1(object, key1, modify) {
+    return update(object, key1, function(value1) {
+        return update0(value1, modify);
+    });
+}
+```
+`update0()`無法套用該模式： 
+
+1. `update0()` 中沒有鍵，因此無法呼叫 `update()`（沒有『第一個鍵』可供 `update()` 使用）。 
+2. 此處的 X - 1 會變成 - 1，這並非合理的路徑長度。
+```js
+function update0(value, modify) {
+    return modify(value);
+}
+```
+---
+layout: statement
+
+---
+從剛剛的觀察發現程式再度飄出『函式名稱中的程式碼異味』：
+
+# 函式名稱中的數字總是和鍵的數量相同
+
+---
+layout: default
+
+---
+
+## 將隱性引數轉為顯性
+
+```js
+function update3(object, key1, key2, key3, modify) {
+    return update(object, key1, function(value1) {
+        return update2(value1, key2, key3, modify);
+    });
+}
+
+```
+<v-click>
+加入⼀個代表『 巢狀深度 』 的 depth 參數 ：
+
+```js
+function updateX(object, depth, key1, key2, key3, modify) {
+    return update(object, key1, function(value1) {
+        return updateX(value1, depth-1, key2, key3, modify);
+    });
+}
+```
+以上改寫確實讓『巢狀深度』變顯性了，
+但如何確保 depth 的值應該要和鍵的數量相同呢？
+</v-click>
+
+<v-click>
+假如將所有鍵按順序存成一個陣列（也就是將 key1、key2、key3、…，改用一個 keys 陣列取代），那就不需設額外的 depth 參數了，也就是說該陣列的長度（即：元素數量）就是『巢狀深度』！
+
+```js
+function updateX(object, keys, modify) {} //keys 包含所有鍵的陣列
+```
+</v-click>
+---
+layout: default
+---
+
+先將陣列中的第⼀個鍵取出並傳入 `update（）`，然後把排在後面的那些鍵存成「restOfKeys」陣列再傳給 `updateX（）`。注意！restOfKeys 陣列的長度為 X - 1 ：
+
+```js {*|2|3|*} 
+function updateX(object, keys, modify) {
+    var key1 = keys[0]; //呼叫 update（）時傳入第一個鍵
+    var restOfKeys = drop_first(keys); //在遞迴呼叫之前，先把第一個鍵從 keys 陣列中刪除
+    return update(object, key1, function(value1) {
+        return updateX(value1, restOfKeys, modify);
+    });
+}
+```
+
+除了 `update0()` 以外，以上實作可適用於所有正整數。
+---
+layout: default   
+---
+## update0()
+
+```js
+function update0(value, modify) {
+    return modify(value);
+}
+```
+
+只需多加一個判斷式：若 keys 陣列的長度為零（即：沒有鍵），則直接呼叫 `modify()`，否則遞迴呼叫 `updateX()`。
+
+````md magic-move {at:1, lines: true}
+```js
+function updateX(object, keys, modify) {
+ 
+ 
+    var key1 = keys[0];
+    var restOfKeys = drop_first(keys);
+    return update(object, key1, function(value1) {
+        return updateX(value1, restOfKeys, modify);
+    });
+}
+```
+
+```js
+function updateX(object, keys, modify) {
+    if(keys.length === 0)
+      return modify(object);
+    var key1 = keys[0];
+    var restOfKeys = drop_first(keys);
+    return update(object, key1, function(value1) {
+        return updateX(value1, restOfKeys, modify);
+    });
+}
+```
+```
+
+````
+
+<br/>
+
+### 遞迴基本條件(base case)
+
+所有遞迴呼叫皆應收斂到某種不涉及遞迴呼叫的情況，稱為基本條件。
+
+---
+layout: default
+---
+## 修改函式名稱
+
+將updateX()改成 nestedUpdate()
+
+````md magic-move {at:1, lines: true}
+```js
+function updateX(object, keys, modify) {
+    if(keys.length === 0)
+      return modify(object);
+    var key1 = keys[0];
+    var restOfKeys = drop_first(keys);
+    return update(object, key1, function(value1) {
+        return updateX(value1, restOfKeys, modify);
+    });
+}
+```
+
+```js
+function nestedUpdate(object, keys, modify) {
+    if(keys.length === 0)
+      return modify(object);
+    var key1 = keys[0];
+    var restOfKeys = drop_first(keys);
+    return update(object, key1, function(value1) {
+        return nestedUpdate(value1, restOfKeys, modify);
+    });
+}
+```
+```
+
+````
+---
+layout: section
+
+---
+
+
+
+# 什麼是遞迴 ？
+
+<v-click>
+
+定義⼀個函式時，你可以在實作中呼叫任何東西，包括你正在定義的函式本身。這種『在定義中呼叫自己』的做法就叫做遞迴（recursive），
+`nestedUpdate()`  就是很好的例子。
+
+```js
+function nestedUpdate(object, keys, modify) {
+    if(keys.length === 0)
+      return modify(object);
+    var key1 = keys[0];
+    var restOfKeys = drop_first(keys);
+      return update(object, key1, function(value1) {
+      return nestedUpdate(value1, restOfKeys, modify);
+    });
+}
+```
+</v-click>
+
+---
+layout: section
+---
+
+# 為什麼要⽤遞迴這麼難懂的方式寫程式？
+
+<v-click>
+
+遞迴寫法特別適合對付巢狀資料。
+
+操作巢狀資料時，往往需對每個層做類似處理，而遞迴函式剛好能做到這一點
+（每一層都呼叫該函式，只不過傳入不同引數）。
+</v-click>
+<v-click>
+
+# 難道不能用較好理解的 for 迴圈達到同樣的目的嗎?
+</v-click>
+
+<v-click>
+
+遞迴可利用函式呼叫堆疊（stack）追蹤每一輪的引數與傳回值。
+
+要是使用for週圈，則必須自行處理此問題。
+
+總而言之，有了JavaScript的堆疊功能，我們不必手動push和pop（將資料放進堆疊稱為push，移出則稱為pop），故省去了許多麻煩
+</v-click>
+---
+layout: section
+---
+
+# 但遞迴不會很危險嗎︖ 萬一產生無限迴圈或記憶體溢位怎麼辦？
+
+<v-click>
+
+遞迴的確有可能造成無限迴圈。
+
+此外，根據你的實作和所用語言，函式呼叫致於有可能遞迴太多次以至於堆疊空間不足。
+
+</v-click>
+
+---
+layout: default
+---
+# 14.16 安全的遞迴需要具備什麼？
+
+
+## 1 .⼀定要有基本條件
+
+<p>要防止遞迴無限循環下去，就一定要<span v-mark="{  color: 'red', type: 'underline' }">定義不含任何遞迴呼叫</span>的 <span v-mark="{  color: '#234', type: 'circle' }">基本條件</span>，並以此當做終點。</p>
+
+  ```js {*|2,3,|*}
+  function nestedUpdate(object, keys, modify) {
+      if(keys.length === 0) // 基本條件
+        return modify(object); //其中不含任何遞迴呼叫
+      var key1 = keys[0];
+      var restOfKeys = drop_first(keys);
+        return update(object, key1, function(value1) {
+        return nestedUpdate(value1, restOfKeys, modify);
+      });
+  }
+  ```
+
+基本條件通常發生在 『 當某次呼叫的傳入引數為空陣列 』 、 『 遞減變數值變成 0 』
+或 『 答案已經找到 』時 。 
+
+---
+layout: default
+
+---
+
+## 2. 弄清楚遞迴的條件
+
+<p>遞迴函式的定義中<span v-mark="{  color: 'red', type: 'underline' }">至少要包含一次遞迴條件</span>，也就是包含了遞迴呼叫的敘述。</p>
+此處同樣以
+`nestedUpdate()`為例:
+```js {*|5,7|*}
+function nestedUpdate(object, keys, modify) {
+    if(keys.length === 0) 
+      return modify(object); 
+    var key1 = keys[0];
+    var restOfKeys = drop_first(keys);// 每經過一次遞迴呼叫，restOfKeys 就會少一個元素
+      return update(object, key1, function(value1) {
+      return nestedUpdate(value1, restOfKeys, modify);//遞迴呼叫
+    });
+}
+```
+
+<v-click>
+
+
+## 3. 確定函式呼叫有朝著基本條件前進
+
+必須確保其中至少有⼀個引數正在『變小』，並且使得呼叫條件越來越接近基本條件。
+
+舉例：假如『以空陣列做遞迴呼叫』是基本條件，那每次遞迴時就要移除該陣列的一個元素。
+
+</v-click>
+
+---
+layout: default
+---
+
+# 14.17 將 nestedUpdate() 的行為視覺化
+
+```js
+> nestedUpdate(cart, ["shirt", "options", "size"], increment)
+```
+
+下方為巢狀結構執行狀態的堆疊（Stack）圖，每呼叫一次 `nestedUpdate()`就往下堆疊一層，直到執行`modify()`，然後再一層一層執行`objectSet()`從堆疊中移除。
+
+<img
+  class="align-center justify-center"
+  src="./image/f0383-01.jpg"
+  alt="">
+  <img
+  class="align-center justify-center"
+  src="./image/f0383-02.jpg"
+  alt="">
+
+---
+layout: full
+---
+
+<img
+  class="align-center justify-center"
+  src="./image/f0383-03.jpg"
+  alt="">
+  <img
+  class="align-center justify-center"
+  src="./image/f0383-04.jpg"
+  alt="">
+<img
+  class="align-center justify-center"
+  src="./image/f0383-05.jpg"
+  alt=""><img
+  class="align-center justify-center"
+  src="./image/f0383-06.jpg"
+  alt="">
+---
+layout: full
+---
+
+  <img
+  class="align-center justify-center"
+  src="./image/f0383-07.jpg"
+  alt="">
+  
+---
+layout: default
+---
+
+# 14.18 比較遞迴和迴圈
+
+## 迴圈
+
+迴圈⾛訪陣列時，程式會從索引0開始， ⼀邊處理其中的元素，⼀邊將⽣成的結果加到傳回陣列末端，如下圖所示：
+
+<img
+  class="align-center justify-center"
+  src="./image/f0384-02.jpg"
+  alt="">
+
+---
+layout: full
+
+---
+
+
+巢狀資料的操作⽅式則不⼀樣：我們需要先⼀層⼀層進⾏『取得』，接著『修改』⽬標屬性值，最後再循環相反方向完成每⼀層的
+『設定』。此外，因為使用了『寫入時複製』，故『設定』其實會產生資料複本：
+
+<img
+  class="w-5/9 h-5/9"
+  src="./image/f0384-03.jpg"
+  alt="">
+
+
+事實上，『取得、修改、設定』的巢狀執行方式恰好反映巢狀結構，而這樣的構造很難不使用遞迴和呼叫堆疊實現。
+<img
+  class="align-center justify-center w-1/3 h-1/3"
+  src="./image/f0384-04.jpg"
+  alt="">
+
+---
+layout: section
+---
+
+# 練習 14-5
+在 14.13 節已介紹過 incrementSizeByName() 的四種實作方法。在此請各位利用
+nestedUpdate() 寫出第五種實作：
+
+```js
+> function incrementSizeByName (cart, name) {}
+```
+
+<v-click>
+```js
+function incrementSizeByName(cart, name) { 
+    return nestedUpdate(cart, [name, 'options', 'size'],
+        function(size) {
+            return size + 1;
+    });
+}
+```
+</v-click>
+
+---
+layout: default
+---
+
+# 14.19 遇到深度巢狀資料時的設計考量
+
+用 `nestedUpdate()` 處理深度巢狀資料時，可能會遇到以下問題：
+
+需要傳入一長串鍵作為路徑，但我們很難記得這些鍵到底指的是什麼？
+
+ex:
+
+```js
+
+httpGet("http://my-blog.com/api/category/blog", function(blogCategory) {
+    renderCategory(nestedUpdate(blogCategory, ['posts', '12', 'author', 'name'], capitalize));
+});
+
+```
+
+每一個巢狀層都有自己的資料結構，必須記得這些結構，才能了解路徑的意思。
+
+---
+layout: default
+
+---
+
+# 14.20  為巢狀資料建立抽象屏障
+
+## 抽象屏障
+抽象屏障（abstraction barrier）是有效隱藏實作細節的函式層，有了它，使用屏障中的函式時，完全不需要了解函式的底層實作。
+
+## 例子
+
+ 建立可操作目標資料結構的函式，並且賦予這些函式有意義的名稱。
+
+寫⼀個能根據給定貼⽂編號（ ID ）修改部落格貼⽂（ post ）的函式（貼⽂儲存在 category 巢狀物件的『 posts 』鍵下）
+
+```js
+function updatePostById(category, id, modifyPost) {
+    return nestedUpdate(category, ['posts', id], modifyPost);
+}
+```
+---
+layout: default
+---
