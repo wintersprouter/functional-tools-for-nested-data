@@ -53,8 +53,7 @@ The last comment block of each slide will be treated as slide notes. It will be 
 
 ---
 transition: slide-up
-
-
+layout: section
 ---
 
 # 導讀人：Ashley
@@ -79,25 +78,6 @@ transition: slide-up
 
 # 前次回顧
 
-Hover on the bottom-left corner to see the navigation's controls panel, [learn more](https://sli.dev/guide/ui#navigation-bar)
-
-## Keyboard Shortcuts
-
-|                                                     |                             |
-| --------------------------------------------------- | --------------------------- |
-| <kbd>right</kbd> / <kbd>space</kbd>                 | next animation or slide     |
-| <kbd>left</kbd>  / <kbd>shift</kbd><kbd>space</kbd> | previous animation or slide |
-| <kbd>up</kbd>                                       | previous slide              |
-| <kbd>down</kbd>                                     | next slide                  |
-
-<!-- https://sli.dev/guide/animations.html#click-animation -->
-<img
-  v-click
-  class="absolute -bottom-9 -left-7 w-80 opacity-50"
-  src="https://sli.dev/assets/arrow-bottom-left.svg"
-  alt=""
-/>
-<p v-after class="absolute bottom-23 left-45 opacity-30 transform -rotate-10">Here!</p>
 
 ---
 layout: section
@@ -170,7 +150,7 @@ layout: section
 
 <div v-click.hide>含有程式碼異味的程式</div>
 
-<div v-after>將屬性名稱轉為顯性 </div>
+<div v-after>將屬性名稱轉為顯性</div>
 
 ````md magic-move {at:1, lines: true}
 
@@ -184,7 +164,7 @@ function incrementQuantity(item) {
 }
 ```
 
-```ts 
+```js 
 function incrementField(item, field) {
     var value = item[field];
     var newValue = value + 1;
@@ -517,47 +497,43 @@ layout: default
 ```
 
 ---
-layout: center
+layout: default
 ---
 ⼀步步拆解 `update（ ）`中的操作：
 
-<img
-  class="align-center justify-center"
-  src="./image/figure_14-1.png"
-  alt="">
+```js {*|2|3|4|*}
+function update(object, key, modify) {
+    var value = object[key]; // step1 取得屬性值
+    var newValue = modify(value); // step2 修改屬性值
+    var newObject = objectSet(object, key, newValue); // step3 設定新物件
+    return newObject;
+}
+```
 
----
-layout: default
----
-# 操作1：取得鍵（key）所指定的物件屬性值（value）
-
-<img
+<div v-if="$slidev.nav.clicks === 1">
+操作1：取得鍵（key）所指定的物件屬性值（value）
+ <img
   class="align-center justify-center"
   src="./image/f0363-02.jpg"
   alt="">
+</div>
 
-
-
----
-layout: default
----
-
-# 操作2：呼叫回呼函式以處理前面取得的屬性值
-
+<div v-if="$slidev.nav.clicks === 2">
+操作2：呼叫回呼函式以處理前面取得的屬性值
 <img
   class="align-center justify-center"
   src="./image/f0363-03.jpg"
   alt="">
+</div>
+<div v-if="$slidev.nav.clicks === 3">
+操作3：產生具有屬性新值的物件複本
+  <img
+    class="align-center justify-center"
+    src="./image/f0363-04.jpg"
+    alt="">
+  </div>
 
----
-layout: default
----
-# 操作3：產生具有屬性新值的物件複本
 
-<img
-  class="align-center justify-center"
-  src="./image/f0363-04.jpg"
-  alt="">
 
 
 ---
@@ -565,4 +541,399 @@ layout: default
 ---
 # 練習 14-1
 
-We have a function called lowercase() that will convert a string to lowercase. Users have an email address under the 'email' key. Using update(), modify the user record by applying lowercase() to their email.
+ `lowercase()` 的函式，可以將傳入的字串轉換為小寫。使用者的電子郵件地址存放在 `email` 鍵下。使用 `update()` 將 `email` 屬性的值全部轉換為小寫。
+
+
+```js
+var user = {
+    firstName: "Joe",
+    lastName: "Nash",
+    email: "JOE@EXAMPLE.COM",
+    …
+};
+```
+
+
+## 解答
+<v-click>
+```js 
+> update(user, 'email', lowercase) 
+  
+{ 
+    firstName: "Joe", 
+    lastName: "Nash", 
+    email: "joe@example.com", 
+    … 
+}
+```
+
+</v-click>
+
+---
+layout: default
+---
+
+# 練習 14-2
+
+Mega Mart 的行銷部門想讓顧客更容易大量採購。為此，他們規劃在購買頁面加入一個『10x』按鈕，能直接將目前的商品數量乘以10。你的任務是利用 `update()` 撰寫一個名為 `tenXQuantity()` 的函式，能將商品物件（item）中的數量（quantity）屬性值乘以10。以下是 item 物件的範例：
+
+```js {*|4}
+var item = {
+    name: "shoes",
+    price: 7,
+    quantity: 2, // 將此屬性值乘以10
+    …
+};
+```
+## 解答
+
+<v-click>
+```js
+function tenXQuantity(item) { 
+    return update(item, 'quantity', function(quantity) { 
+        return quantity * 10; 
+    }); 
+}
+
+```
+</v-click>
+
+--- 
+layout: default
+---
+# 練習 14-3
+ <div grid="~ cols-2 gap-4">
+ <div>
+請參考以下資料結構與可使用的3個函式：
+
+```js
+var user = {
+    firstName: "Cindy",
+    lastName: "Sullivan",
+    email: "cindy@randomemail.com",
+    score: 15,
+    logins: 3
+};
+```
+</div>
+ <div>
+本題組可用的函式：
+
+- `increment()`: 將給定屬性的值加1。
+- `decrement()`: 將給定屬性的值減1。
+- `uppercase()`: 將給定字串的字母轉為大寫。
+</div>
+</div>
+
+1. 請問以下程式碼會輸出什麼結果？
+<div grid="~ cols-2 gap-4">
+```js
+> update(user, 'score', increment).score
+```
+<v-click>
+```js
+16
+```
+</v-click>
+</div>
+
+
+2. 請問以下程式碼會輸出什麼結果？
+<div grid="~ cols-2 gap-4">
+```js
+> update(user, 'logins', decrement).score
+```
+<v-click>
+```js
+15
+```
+</v-click>
+</div>
+
+3. 請問以下程式碼會輸出什麼結果？
+<div grid="~ cols-2 gap-4">
+```js
+> update(user, 'firstName', uppercase).firstName
+```
+<v-click>
+```js
+"CINDY"
+```
+</v-click>
+</div>
+
+---
+layout: center
+---
+
+<img
+  class="align-center justify-center"
+  src="./image/14-13.png"
+  alt="">
+
+
+---
+layout: section
+---
+
+```js {*|4,5,6,7|11,12,13,14,15|}
+var shirt = {
+    name: "shirt",
+    price: 13,
+    options: { // shirt 物件中還有 options 物件，形成巢狀結構
+        color: "blue",
+        size: 3 // 必須存取到options 物件裡面的屬性值
+    }
+};
+ 
+function incrementSize(item) {
+    var options = item.options; //取得
+    var size = options.size; //取得
+    var newSize = size + 1; // 修改
+    var newOptions = objectSet(options, 'size', newSize); // 設定
+    var newItem = objectSet(item, 'options', newOptions); // 設定
+    return newItem;
+}
+```
+---
+layout: default
+---
+# 14.8 將巢狀資料的 update() 視覺化
+<div grid="~ cols-2 gap-4">
+
+```js {*|2,3|4,5|6,7|8,9|10,11|}
+function incrementSize(item) {
+    //step1
+    var options = item.options; //取得
+    //step2
+    var size = options.size; //取得
+    //step3
+    var newSize = size + 1; // 修改
+    //step4
+    var newOptions = objectSet(options, 'size', newSize); // 設定
+    //step5
+    var newItem = objectSet(item, 'options', newOptions); // 設定
+    return newItem;
+}
+```
+
+<div v-if="$slidev.nav.clicks === 1">
+操作 1：取得鍵（key）所指定的物件
+ <img
+  class="align-center justify-center"
+  src="./image/f0368-01.jpg"
+  alt="">
+</div>
+
+<div v-if="$slidev.nav.clicks === 2">
+操作 2：取得鍵（key）所指定的物件屬性值（value）
+<img
+  class="align-center justify-center"
+  src="./image/f0368-02.jpg"
+  alt="">
+</div>
+<div v-if="$slidev.nav.clicks === 3">
+操作 3：產⽣屬性新值
+<img
+  class="align-center justify-center"
+  src="./image/f0368-03.jpg"
+  alt="">
+  </div>
+  <div v-if="$slidev.nav.clicks === 4">
+操作 4：產生具有數性新值的物件複本
+<img
+  class="align-center justify-center"
+  src="./image/f0368-04.jpg"
+  alt="">
+  </div>
+    <div v-if="$slidev.nav.clicks === 5">
+操作 5： 產⽣具有屬性新值的物件複本
+<img
+  class="align-center justify-center"
+  src="./image/f0368-05.jpg"
+  alt="">
+  </div>
+
+</div>
+
+---
+layout: default
+---
+# 14.9 用 update() 處理巢狀資料
+
+以 `update()`重構 `incrementSize()`
+```js 
+function incrementSize(item) {
+    var options = item.options; // 取得
+    var size = options.size; // 取得
+    var newSize = size + 1; // 修改
+    var newOptions = objectSet(options, 'size', newSize); // 設定
+    var newItem = objectSet(item, 'options', newOptions); // 設定
+    return newItem;
+}
+```
+
+
+---
+layout: section
+---
+
+
+重構 3 的步驟
+
+1. 辨識『取得』、『修改 』與『設定』程式段落。
+2. 利用 `update()`  取代以上三個段落 ，其中『修改』的部分為回呼 。
+
+<div v-click.hide>原始程式</div>
+
+<div v-after>重構後</div>
+
+````md magic-move {at:1, lines: true}
+
+
+```js
+function incrementSize(item) {
+    var options = item.options; // 取得
+    var size = options.size; // 取得
+    var newSize = size + 1; // 修改
+    var newOptions = objectSet(options, 'size', newSize); // 設定
+    var newItem = objectSet(item, 'options', newOptions); // 設定
+    return newItem;
+}
+```
+
+```js 
+function incrementSize(item) {
+    var options = item.options; // 取得
+
+
+    var newOptions = update(options, 'size', increment); // 修改  
+    var newItem = objectSet(item, 'options', newOptions); // 設定
+    return newItem;
+}
+
+```
+
+```js 
+
+function incrementSize(item) {
+    return update(item, 'options', function(options) {
+        return update(options, 'size', increment);
+    });
+}
+
+```
+````
+
+---
+layout: default
+---
+
+# 14.10 實作成普適化的updateOption（）
+
+
+```js
+var shirt = {
+    name: "shirt",
+    price: 13,
+    options: {
+        color: "blue",
+        size: 3
+    }
+};
+```
+
+```js {*|3|*}
+function incrementSize(item) {
+    return update(item, 'options', function(options) {
+        return update(options, 'size', increment); // 可以看到，函式名稱中又出現了隱性引數，而且還出現了兩個
+    });
+}
+
+```
+由於 size 屬性值位於兩層巢狀結構內（經過兩個物件才能取得該值），故需呼叫兩次 update（）。
+
+**資料的巢狀深度有多少，update（）的巢狀呼叫次數就有多少**
+
+---
+layout: section
+---
+將引數改為顯性：先處理 size（隱性屬性名稱），再處理 increment（隱性修改操作）
+
+
+````md magic-move {at:1, lines: true}
+
+
+```js {*|1,2,4|*}
+// 1.包含隱性屬性名稱
+function incrementSize(item) {
+    return update(item, 'options', function(options) {
+        return update(options, 'size', increment);
+    });
+}
+```
+
+```js {*|1,2,4|}
+// 2.改為顯性屬性名稱
+function incrementOption(item, option) { 
+    return update(item, 'options', function(options) {
+        return update(options, option, increment);
+    });
+}
+
+```
+
+```js {*|1,2,4|*}
+// 3.包含隱性修改操作
+function incrementOption(item, option) {
+    return update(item, 'options', function(options) {
+        return update(options, option, increment);
+    });
+}
+
+```
+```js {*|1,2,4|*}
+// 4.改為隱性修改操作
+function updateOption(item, option, modify) {
+    return update(item, 'options', function(options) { // 函式名稱仍有隱性引數
+        return update(options, option, modify);
+    });
+}
+
+```
+````
+---
+layout: default
+---
+
+# 14.11 實作兩層巢狀結構的 update２()
+
+````md magic-move {at:1, lines: true}
+
+
+```js 
+// 1.包含隱性引數
+function updateOption(item, option, modify) {
+    return update(item, 'options', function(options) {
+        return update(options, option, modify);
+    });
+}
+```
+
+```js 
+// 2.改為顯性引數
+function update2(object, key1, key2, modify) { //函式名稱中的2表示用於兩層巢狀結構
+    return update(object, key1, function(value1) {
+        return update(value1, key2, modify);
+    });
+}
+
+```
+````
+
+<div v-if="$slidev.nav.clicks === 0">
+- 此處的 option 隱藏在函式名稱中，需改成顯性引數
+</div>
+<div v-if="$slidev.nav.clicks === 1">
+將外層的Key 參數名改爲 key1，內層的Key 參數名改爲 key2，並將 item 改為 object
+</div>
