@@ -56,7 +56,10 @@ transition: slide-up
 layout: section
 ---
 
-# 導讀人：Ashley
+# 自我介紹
+<br/>
+
+## 導讀人：Ashley
 
 - 👩‍💻 近 4 年前端開發經驗
 - 🛠 擅長開發 React 、React Native
@@ -72,20 +75,31 @@ Here is another comment.
 -->
 
 ---
-transition: slide-up
-layout: default
-
----
-
-# 前次回顧: CH 12 利用函式走訪
-
----
 layout: default
 transition: slide-up
 ---
 
-# 前次回顧: CH 13 串聯函數式工具
+# 前次回顧: 
 
+## CH 12 利用函式走訪
+
+- `map()` 會利用回呼函式處理陣列中的每個元素，並且一一轉換成新陣列的元素。
+- `filter()` 會選取傳入陣列中的部分元素，並且加入新陣列中。選取的標準是由你所傳入的謂語函式決定。
+- `reduce()` 會以給定的初始值為基礎，將傳入陣列中的元素『合併』成一個值。這個值可以是數字、字串、物件或陣列等任何類型。
+
+
+---
+layout: default
+transition: slide-up
+---
+
+# 前次回顧: 
+
+## CH 13 串聯函數式工具
+
+- 可以將多個函數式工具串聯成多步驟的鏈（chain）。利用此做法，複雜的資料計算可以被分解成一組簡單的小動作。
+- 可以將函數鏈視為一種查詢語言，ex: SQL。串成鏈的函數式工具可以表達對陣列資料的複雜查詢。
+- 為了撰寫函式鏈的下一步，有時需要先產生新資料或是擴充既有資料。
 
 ---
 layout: default
@@ -2024,3 +2038,30 @@ var updatedCart = nestedUpdate(cart, ['pants', 'price'], priceIncrease20);
 ```
 
 </v-click>
+---
+layout: center
+
+---
+
+#  問題與討論
+
+<br/>
+
+## 在前端的開發中，什麼時候會用到遞迴？
+
+
+---
+layout: end
+
+---
+
+# 次回日期、章節導讀人及筆記工預告
+
+## 第 15 章 解析時間線(48)
+
+### 日期：7/10
+### 導讀人：Lulu
+### 筆記工：Blue
+
+
+
