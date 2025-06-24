@@ -22,17 +22,22 @@ ogImage: https://drek4537l1klr.cloudfront.net/normand/Figures/rabbit.jpg
 
 fonts:
   # 与 css 中的 font-family 一致，你可以使用 `,` 来分割字体名，便于回退
+  sans: 'MapleMono-Regular, MapleMonoNormal-NF-CN-Medium,Robot'
+  serif: Robot Slab
+  mono: 'MapleMono-Regular, MapleMonoNormal-NF-CN-Medium'
+  weights: '200,400,600'
+  italic: false
   local: MapleMonoNormal-NF-CN-Medium
 
 ---
 
 # CH 14 處理巢狀資料的函數式工具
 
-《簡約軟體開發思維用 Functional Programming 重構程式以 JavaScript 為例》 讀書會
+## 《簡約軟體開發思維用 Functional Programming 重構程式以 JavaScript 為例》 讀書會
 
 2025/06/26
 
- Ashley
+導讀人：Ashley
 
 
 
